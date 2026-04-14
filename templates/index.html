@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ICB Prospecta</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Header ── */
+    .header {
+      width: 100%;
+      background: #1F4E79;
+      color: white;
+      padding: 20px 24px 16px;
+      text-align: center;
+    }
+    .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .header p  { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+
+    /* ── Card principal ── */
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 520px;
+      margin: 24px 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 16px;
+      color: #111827;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #2E75B6; }
+    input[type="text"]::placeholder { color: #9CA3AF; }
+
+    .btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      background: #E8711A;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover  { background: #c95e10; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #9CA3AF; cursor: not-allowed; transform: none; }
+
+    /* ── Estado / loader ── */
+    .estado {
+      margin-top: 20px;
+      display: none;
+    }
+    .loader {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #EBF3FB;
+      border-radius: 10px;
+      color: #1F4E79;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid #93C5FD;
+      border-top-color: #1F4E79;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .paso {
+      font-size: 12px;
+      color: #6B7280;
+      margin-top: 8px;
+      padding-left: 4px;
+    }
+
+    /* ── Resultado ── */
+    .resultado {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .tag-tipo {
+      display: inline-block;
+      background: #D5EDDF;
+      color: #1E6E3A;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .perfil {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .insight-box {
+      background: #FFF8F0;
+      border-left: 4px solid #E8711A;
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 10px;
+    }
+    .insight-box .insight-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #E8711A;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .insight-box p {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .btn-descargar {
+      width: 100%;
+      margin-top: 18px;
+      padding: 16px;
+      background: #1E6E3A;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-descargar:hover { background: #155a2e; }
+
+    .btn-nueva {
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px;
+      background: transparent;
+      color: #2E75B6;
+      border: 2px solid #2E75B6;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-nueva:hover { background: #EBF3FB; }
+
+    /* ── Error ── */
+    .error-box {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      background: #FEE2E2;
+      border-radius: 10px;
+      color: #991B1B;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      font-size: 11px;
+      color: #9CA3AF;
+      text-align: center;
+      padding: 16px;
+      margin-top: auto;
+    }
+
+    /* ── Actualizar catálogo ── */
+    .link-actualizar {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+      color: #9CA3AF;
+      margin-top: 14px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .link-actualizar:hover { color: #6B7280; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>ICB Prospecta</h1>
+    <p>Top 15 SKUs para cualquier cliente gastronómico</p>
+  </div>
+
+  <div class="card">
+
+    <!-- ── Formulario ── -->
+    <div id="formulario">
+      <label for="input-cliente">Nombre del cliente</label>
+      <input
+        type="text"
+        id="input-cliente"
+        placeholder="Ej: Café Sienna Las Condes"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      >
+      <button class="btn" id="btn-investigar" onclick="investigar()">
+        Investigar cliente
+      </button>
+      <span class="link-actualizar" onclick="actualizarCatalogo()">↻ Actualizar catálogo ICB</span>
+    </div>
+
+    <!-- ── Loader ── -->
+    <div class="estado" id="estado">
+      <div class="loader">
+        <div class="spinner"></div>
+        <span id="loader-texto">Investigando el cliente…</span>
+      </div>
+      <div class="paso" id="loader-paso">Buscando información en la web…</div>
+    </div>
+
+    <!-- ── Error ── -->
+    <div class="error-box" id="error-box"></div>
+
+    <!-- ── Resultado ── -->
+    <div class="resultado" id="resultado">
+      <span class="tag-tipo" id="res-tipo"></span>
+      <div class="perfil" id="res-perfil"></div>
+      <div class="insight-box">
+        <div class="insight-label">Ángulo de entrada</div>
+        <p id="res-angulo"></p>
+      </div>
+      <div class="insight-box">
+        <div class="insight-label">Pregunta para la visita</div>
+        <p id="res-pregunta"></p>
+      </div>
+      <a class="btn-descargar" id="btn-descargar" href="#" download>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/>
+        </svg>
+        Descargar Excel Top 15 SKUs
+      </a>
+      <button class="btn-nueva" onclick="nuevaBusqueda()">+ Nueva búsqueda</button>
+    </div>
+
+  </div>
+
+  <div class="footer">ICB Food Service · Solo uso interno</div>
+
+  <script>
+    let pasos = [
+      "Buscando información en la web…",
+      "Analizando el tipo de negocio y carta…",
+      "Identificando familias de productos ICB…",
+      "Descargando catálogo de precios…",
+      "Generando el Excel…",
+    ];
+    let pasoIdx = 0;
+    let pasoInterval = null;
+
+    function iniciarLoader() {
+      pasoIdx = 0;
+      document.getElementById("loader-paso").textContent = pasos[0];
+      pasoInterval = setInterval(() => {
+        pasoIdx = Math.min(pasoIdx + 1, pasos.length - 1);
+        document.getElementById("loader-paso").textContent = pasos[pasoIdx];
+      }, 7000);
+    }
+
+    function detenerLoader() {
+      if (pasoInterval) clearInterval(pasoInterval);
+    }
+
+    function mostrarError(msg) {
+      detenerLoader();
+      document.getElementById("estado").style.display = "none";
+      const box = document.getElementById("error-box");
+      box.textContent = msg;
+      box.style.display = "block";
+      document.getElementById("btn-investigar").disabled = false;
+    }
+
+    async function investigar() {
+      const nombre = document.getElementById("input-cliente").value.trim();
+      if (!nombre) {
+        document.getElementById("input-cliente").focus();
+        return;
+      }
+
+      // Reset UI
+      document.getElementById("error-box").style.display = "none";
+      document.getElementById("resultado").style.display = "none";
+      document.getElementById("estado").style.display = "block";
+      document.getElementById("btn-investigar").disabled = true;
+      iniciarLoader();
+
+      try {
+        const res = await fetch("/api/investigar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cliente: nombre }),
+        });
+        const data = await res.json();
+
+        detenerLoader();
+
+        if (!res.ok || !data.ok) {
+          mostrarError(data.error || "Ocurrió un error. Intenta de nuevo.");
+          return;
+        }
+
+        // Mostrar resultado
+        document.getElementById("estado").style.display = "none";
+        document.getElementById("res-tipo").textContent = data.tipo;
+        document.getElementById("res-perfil").textContent = data.perfil;
+        document.getElementById("res-angulo").textContent = data.angulo_entrada;
+        document.getElementById("res-pregunta").textContent = data.pregunta_discovery;
+
+        const link = document.getElementById("btn-descargar");
+        link.href = "/api/descargar/" + encodeURIComponent(data.archivo);
+        link.setAttribute("download", data.archivo);
+
+        document.getElementById("resultado").style.display = "block";
+        document.getElementById("btn-investigar").disabled = false;
+
+      } catch (e) {
+        mostrarError("Error de conexión. Verifica que el servidor esté corriendo.");
+      }
+    }
+
+    function nuevaBusqueda() {
+      document.getElementById("resultado").style.display = "none";
+      document.getElementById("input-cliente").value = "";
+      document.getElementById("input-cliente").focus();
+    }
+
+    async function actualizarCatalogo() {
+      if (!confirm("¿Actualizar el catálogo ICB desde OneDrive?")) return;
+      try {
+        const res = await fetch("/api/actualizar-catalogo", { method: "POST" });
+        const data = await res.json();
+        alert(data.ok ? "✓ Catálogo actualizado." : "Error: " + data.error);
+      } catch (e) {
+        alert("Error de conexión.");
+      }
+    }
+
+    // Enter para buscar
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("input-cliente").addEventListener("keydown", e => {
+        if (e.key === "Enter") investigar();
+      });
+    });
+  </script>
+
+</body>
+</html>
